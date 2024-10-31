@@ -1,4 +1,3 @@
-import os
 import time
 import jwt
 from fastapi import APIRouter, HTTPException, status, Request
@@ -49,7 +48,7 @@ class AuthModule:
             auth_time=int(time.time()),
             expire_at=expire_time
         )
-        token = jwt.encode(payload.dict(), JWT_KEY, algorithm=JWT_ALGORITHM)
+        token = jwt.encode(payload.model_dump(), JWT_KEY, algorithm=JWT_ALGORITHM)
         return token, expire_time
     
     def decode_safemeet_jwt_token(self):

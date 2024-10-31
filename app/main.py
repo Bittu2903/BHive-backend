@@ -33,6 +33,6 @@ app.include_router(
     funds_routes.router,
     prefix="/funds",
     tags=["funds"],
-    dependencies=[Depends(introspect_bearer_token)],  # Protect these routes with token validation
+    dependencies=[Depends(introspect_bearer_token)],  # Protect the routes with token validation
     responses={404: {"description": "Not found"}},
 )
