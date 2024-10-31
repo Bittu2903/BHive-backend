@@ -10,8 +10,6 @@
 - [API Documentation](#api-documentation)
 - [Environment Variables](#environment-variables)
 - [Getting an API Key](#getting-an-api-key)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Introduction
 This is the backend for the [Project Name]. It is built using FastAPI and provides endpoints for interacting with mutual fund data. This documentation will guide you through setting up the project locally.
