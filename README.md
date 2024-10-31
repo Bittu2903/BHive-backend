@@ -9,6 +9,7 @@
 - [Testing the Project](#testing-the-project)
 - [API Documentation](#api-documentation)
 - [Environment Variables](#environment-variables)
+- [Getting an API Key](#getting-an-api-key)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -117,3 +118,11 @@ DUMMY_PASSWORD=bhive_backend_secret_password
 ```
 
 The above credentials can be used for login testing.
+
+## Getting an API Key
+To obtain an API key for accessing the mutual fund data through RapidAPI, follow these steps:
+
+1. Go to the [Latest Mutual Fund NAV API page on RapidAPI](https://rapidapi.com/suneetk92/api/latest-mutual-fund-nav).
+2. Click on the "Sign Up" button if you don't have an account, or "Log In" if you already have one.
+3. After logging in, subscribe to the API by selecting a pricing plan that suits your needs.
+4. Once subscribed, you will find your API key in the dashboard. Copy this key and set it in your `.env` file as `RAPIDAPI_KEY`.
