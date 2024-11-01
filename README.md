@@ -10,6 +10,7 @@
 - [API Documentation](#api-documentation)
 - [Environment Variables](#environment-variables)
 - [Getting an API Key](#getting-an-api-key)
+- [Import Postman Collection](#get-postman-collection)
 
 ## Introduction
 This is the backend for the [Project Name]. It is built using FastAPI and provides endpoints for interacting with mutual fund data. This documentation will guide you through setting up the project locally.
@@ -124,3 +125,6 @@ To obtain an API key for accessing the mutual fund data through RapidAPI, follow
 2. Click on the "Sign Up" button if you don't have an account, or "Log In" if you already have one.
 3. After logging in, subscribe to the API by selecting a pricing plan that suits your needs.
 4. Once subscribed, you will find your API key in the dashboard. Copy this key and set it in your `.env` file as `RAPIDAPI_KEY`.
+
+## Import Postman Collection
+Import `BHive Mutual Fund Brokrage.postman_collection.json` file in Postman to see the postman api collection for this project.
