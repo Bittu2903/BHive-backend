@@ -11,5 +11,11 @@ class FundResponseModel(BaseModel):
     scheme_category: str = Field(..., alias='Scheme_Category')
     mutual_fund_family: str = Field(..., alias='Mutual_Fund_Family')
 
-    class Config:
-        allow_population_by_field_name = True
+    model_config = {
+        'populate_by_name': True,
+    }
+
+class PurchaseFundRequest(BaseModel):
+    schemeCode: int
+    schemeName: str
+    amount: float
