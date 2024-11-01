@@ -1,7 +1,5 @@
-# modules/funds/routes.py
-
 from fastapi import APIRouter, Depends
-from app.modules.funds.models import FundResponseModel
+from app.modules.funds.models import FundResponseModel, PurchaseFundRequest
 from .operations import FundModule
 
 router = APIRouter()
@@ -37,18 +35,19 @@ async def get_latest_funds(mutual_fund_family: str):
     return funds
 
 @router.post("/purchase")
-async def purchase_fund(schemeCode: int, schemeName: str, amount: float):
+async def purchase_fund(model: PurchaseFundRequest):
     """
     Processes a purchase of a mutual fund.
 
     Args:
-        schemeCode (int): The code of the mutual fund scheme.
-        schemeName (str): The name of the mutual fund scheme.
-        amount (float): The amount to invest in the scheme.
+        PurchaseFundRequest Model:
+            schemeCode (int): The code of the mutual fund scheme.
+            schemeName (str): The name of the mutual fund scheme.
+            amount (float): The amount to invest in the scheme.
 
     Returns:
         dict: A message indicating the purchase was successful.
     """
     module = FundModule()
-    purchased_fund = await module.purshase_fund(schemeCode, schemeName, amount)
+    purchased_fund = await module.purchase_fund(model.schemeCode, model.schemeName, model.amount)
     return purchased_fund
