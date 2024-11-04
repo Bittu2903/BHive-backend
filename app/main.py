@@ -2,12 +2,16 @@ from fastapi import FastAPI, Depends
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 
+from app.helpers.database import init_db
 from app.helpers.auth import introspect_bearer_token
 from app.modules.auth import routes as auth_routes
 from app.modules.funds import routes as funds_routes
 
 # Load environment variables from a .env file
 load_dotenv()
+
+# Initialize the database schema
+init_db()
 
 app = FastAPI()
 

@@ -11,11 +11,23 @@ class FundResponseModel(BaseModel):
     scheme_category: str = Field(..., alias='Scheme_Category')
     mutual_fund_family: str = Field(..., alias='Mutual_Fund_Family')
 
-    model_config = {
-        'populate_by_name': True,
-    }
+    class Config:
+        orm_mode = True
 
 class PurchaseFundRequest(BaseModel):
-    schemeCode: int
-    schemeName: str
+    scheme_code: int = Field(..., alias='schemeCode')
+    scheme_name: str = Field(..., alias='schemeName')
     amount: float
+
+class SellFundRequest(BaseModel):
+    scheme_code: int = Field(..., alias='schemeCode')
+    amount: float
+
+class PortfolioModel(BaseModel):
+    user_id: str
+    scheme_code: int
+    scheme_name: str
+    amount: float
+
+    class Config:
+        orm_mode = True
