@@ -1,8 +1,8 @@
-# modules/funds/operations.py
-
 import httpx
-from fastapi import HTTPException
+from fastapi import APIRouter, Request, HTTPException, status
 from app.helpers import env
+# from app.modules.funds.models import PortfolioModel
+from app.helpers.database import PortfolioModel
 
 class FundModule:
     """
@@ -14,18 +14,19 @@ class FundModule:
         headers (dict): Headers required for API requests.
     """
 
-    def __init__(self):
+    def __init__(self, session):
         """
         Initializes the FundModule with API host and key.
         """
         self.rapidapi_host = 'latest-mutual-fund-nav.p.rapidapi.com'
-        self.rapidapi_key = env.get("RAPIDAPI_KEY")  # Get the API key from the environment
+        self.rapidapi_key = env.get("RAPIDAPI_KEY2")
         self.headers = {
             'x-rapidapi-host': self.rapidapi_host,
             'x-rapidapi-key': self.rapidapi_key,
         }
+        self.session = session
 
-    async def fetch_funds(self, rta_agent_code: str):
+    def fetch_funds(self, rta_agent_code: str):
         """
         Fetches mutual fund data based on the provided RTA agent code.
 
@@ -40,14 +41,13 @@ class FundModule:
         """
         url = f"https://{self.rapidapi_host}/master?RTA_Agent_Code={rta_agent_code}"
 
-        async with httpx.AsyncClient() as client:
-            response = await client.get(url, headers=self.headers)
-            if response.status_code != 200:
-                raise HTTPException(status_code=response.status_code, detail="Error fetching funds")
+        response = httpx.get(url, headers=self.headers)
+        if response.status_code != 200:
+            raise HTTPException(status_code=response.status_code, detail="Error fetching funds")
 
-            return response.json()
+        return response.json()
 
-    async def fetch_latest_funds(self, mutual_fund_family: str):
+    def fetch_latest_funds(self, mutual_fund_family: str):
         """
         Fetches the latest mutual fund data for a specific mutual fund family.
 
@@ -62,34 +62,59 @@ class FundModule:
         """
         url = f"https://{self.rapidapi_host}/latest?Scheme_Type=Open&Mutual_Fund_Family={mutual_fund_family}"
 
-        async with httpx.AsyncClient() as client:
-            response = await client.get(url, headers=self.headers)
-            if response.status_code != 200:
-                raise HTTPException(status_code=response.status_code, detail="Error fetching latest funds")
+        response = httpx.get(url, headers=self.headers)
+        if response.status_code != 200:
+            raise HTTPException(status_code=response.status_code, detail="Error fetching latest funds")
 
-            return response.json()
+        return response.json()
 
-    async def purchase_fund(self, schemeCode: int, schemeName: str, amount: float):
-        """
-        Processes a purchase of a mutual fund.
-
-        Args:
-            schemeCode (int): The code of the mutual fund scheme.
-            schemeName (str): The name of the mutual fund scheme.
-            amount (float): The amount to invest in the scheme.
-
-        Returns:
-            dict: A message indicating the purchase was successful.
-
-        Raises:
-            HTTPException: If the amount is invalid (less than or equal to 0).
-        """
+    async def purchase_fund(self, scheme_code, scheme_name, amount, user_id):
         if amount <= 0:
-            raise HTTPException(status_code=400, detail="Invalid amount")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Amount must be greater than 0"
+            )
+        new_fund = PortfolioModel(scheme_code=scheme_code, scheme_name=scheme_name, amount=amount, user_id=user_id)
+        self.session.add(new_fund)
+        self.session.commit()
+        return {"message": "Fund purchased successfully", "data": new_fund}
+
+    async def sell_fund(self, scheme_code, amount, user_id):
+        fund_to_sell = self.session.query(PortfolioModel).filter(
+            PortfolioModel.scheme_code == scheme_code,
+            PortfolioModel.user_id == user_id
+        ).first()
+
+        if not fund_to_sell:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Fund not found in portfolio"
+            )
         
+        if fund_to_sell.amount < amount:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Insufficient amount to sell"
+            )
+
+        self.session.delete(fund_to_sell)
+        self.session.commit()
         return {
-            "message": "Purchase successful",
-            "schemeCode": schemeCode,
-            "schemeName": schemeName,
+            "message": "Fund sold successfully",
+            "schemeCode": scheme_code,
             "amount": amount
         }
+
+
+    async def fetch_portfolio(self, user_id: int):
+        """
+        Fetches the portfolio from the database for a specific user.
+
+        Args:
+            user_id (int): The ID of the user.
+
+        Returns:
+            list: The portfolio data.
+        """
+        results = self.session.query(PortfolioModel).filter(PortfolioModel.user_id == user_id).all()
+        return results
